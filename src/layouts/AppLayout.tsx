@@ -13,7 +13,7 @@ export default function AppLayout() {
 
         <AppHeader />
       
-        <Box sx={{ display: 'flex', marginTop: '4rem' }}>
+        <Box sx={{ display: 'flex', margin: '4rem' }}>
             <Container maxWidth='lg'>
 
                 <Routes>
