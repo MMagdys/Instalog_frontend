@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Button, Card, OutlinedInput } from '@mui/material';
+import { Button, Card } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
@@ -19,36 +19,19 @@ import Avatar from '@mui/material/Avatar';
 import DetailsTable from './Table/DetailsTable';
 import { tableCellClasses } from "@mui/material/TableCell";
 import Log from '../models/Log';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchLog, selectLogsDetails } from '../store/features/LogSlice';
+import { fDate } from '../utils/DateUtils';
 
 
-
-function createData(
-  actor: string,
-  action: string,
-  date: string,
-) {
-  return {
-    actor,
-    action,
-    date,
-    history: [
-      {
-        date: '2020-01-05',
-        customerId: '11091700',
-        amount: 3,
-      },
-      {
-        date: '2020-01-02',
-        customerId: 'Anonymous',
-        amount: 1,
-      },
-    ],
-  };
-}
 
 function Row(props: { row: Log }) {
+  
   const { row } = props;
   const [open, setOpen] = React.useState(false);
+  const { log, status } = useAppSelector(selectLogsDetails);
+  const dispatch = useAppDispatch();
+
 
   return (
     <React.Fragment>
@@ -72,7 +55,10 @@ function Row(props: { row: Log }) {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={() => {
+              setOpen(!open);
+              dispatch(fetchLog(row.id))
+            }}
           >
             {open ? <CloseIcon />: <ArrowForwardIosIcon />}
           </IconButton>
@@ -93,29 +79,33 @@ function Row(props: { row: Log }) {
                         }
                     }}
                 >
-                    <TableBody>
-                        <TableRow key={`${row.id}-details-1`}>
-                            <TableCell component="th" scope="row">
-                                <DetailsTable title="Actor" list={[{key: "Name", value: "Muhammad Magdy"}]} />
-                            </TableCell>
-                            <TableCell component="th" scope="row">
-                                <DetailsTable title="Action" list={[{key: "Name", value: "Muhammad Magdy"}]} />
-                            </TableCell>
-                            <TableCell component="th" scope="row">
-                                <DetailsTable title="Date" list={[{key: "Name", value: "Muhammad Magdy"}]} />
-                            </TableCell>
-                            {/* <TableCell /> */}
-                        </TableRow>
+                    {log? (
+                      <TableBody>
+                      <TableRow key={`${row.id}-details-1`}>
+                          <TableCell component="th" scope="row">
+                              <DetailsTable title="Actor" list={log.actor as any} head={['name', 'group', 'id']} />
+                          </TableCell>
+                          <TableCell component="th" scope="row">
+                              <DetailsTable title="Action" list={log.action as any} head={['name', 'object', 'id']} />
+                          </TableCell>
+                          <TableCell component="th" scope="row">
+                              <DetailsTable title="Date" list={{"Readable": fDate(log.occurred_at)}} head={["Readable"]} />
+                          </TableCell>
+                          <TableCell />
+                      </TableRow>
 
-                        <TableRow key={`${row.id}-details-2`}>
-                            <TableCell component="th" scope="row">
-                                <DetailsTable title="META DATA" list={[{key: "Name", value: "Muhammad Magdy"}]} />
-                            </TableCell>
-                            <TableCell component="th" scope="row">
-                                <DetailsTable title="TARGET" list={[]} />
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
+                      <TableRow key={`${row.id}-details-2`}>
+                          <TableCell component="th" scope="row">
+                              <DetailsTable title="META DATA" list={log.metaData as any} head={['redirect', 'description', 'x_request_id']} />
+                          </TableCell>
+                          <TableCell component="th" scope="row">
+                              <DetailsTable title="TARGET" list={log.target as any} head={['name', 'group', 'id']} />
+                          </TableCell>
+                      </TableRow>
+                  </TableBody>
+                  ):
+                  null
+                  }
               </Table>
             </Box>
           </Collapse>
@@ -124,13 +114,6 @@ function Row(props: { row: Log }) {
     </React.Fragment>
   );
 }
-
-
-const rows = [
-  createData('muhammad@instatus.com', 'user.Login success', 'Aug 7, 5:38 PM'),
-  createData('muhammad@instatus.com', 'user.searched_activity_log_events', 'Aug 7, 5:38 PM'),
-  createData('muhammad@instatus.com', 'user.invited_teammate', 'Aug 7, 5:38 PM'),
-];
 
 
 const TableHeaderLabel = styled(Typography)<TypographyProps>(({ theme }) => ({
@@ -144,7 +127,7 @@ const TableHeaderLabel = styled(Typography)<TypographyProps>(({ theme }) => ({
 export default function LogTable(props: any) {
 
     const { list, pageInfo, handleLoadMore, handleSearch } = props;
-
+    
     const [filterName, setFilterName] = React.useState('');
 
     const handleFilterName = (filterName: string) => {

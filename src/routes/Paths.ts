@@ -1,6 +1,7 @@
 const routes = {
     logs: {
-        list: '/events'
+        list: '/events',
+        show: (id: string) => `/events/${id}`
     }
 }
 

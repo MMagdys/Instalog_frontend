@@ -17,14 +17,35 @@ type Item = {
 
 type Props = {
     title: string;
-    list: Item[];
+    list: {[key: string]: string};
+    head: string[];
 };
 
+
+function createRows(items: {[key: string]: string}, head: string[]): Item[] {
+
+  let rows: Item[] = []
+
+  for (let i = 0; i < head.length; i++) {
+    const field = head[i];
+    const key = field == "id"? "ID" :field.charAt(0).toUpperCase() + field.slice(1);
+    if(items[`${field}`]) {
+      rows.push({
+        key: key,
+        value: items[`${field}`]
+      })
+    }
+  }
+  console.log(rows)
+
+  return rows
+}
 
 
 export default function DetailsTable(props: Props) {
 
-  const { title, list } = props;
+  const { title, list, head } = props;
+  const rows: Item[] = list? createRows(list, head): []
 
   return (
     <TableContainer >
@@ -48,7 +69,7 @@ export default function DetailsTable(props: Props) {
           </TableRow>
         </TableHead>
         <TableBody>
-            {list.map((item) => (
+            {rows.map((item) => (
                 <TableRow
                     key={item.key}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

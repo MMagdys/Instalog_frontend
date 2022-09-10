@@ -10,12 +10,14 @@ interface LogsState {
     logList: Log[];
     status: boolean;
     pageInfo: PageInfo | null;
+    log: Log | null
 }
 
 const initialState: LogsState = {
   logList: [],
   status: false,
-  pageInfo: null
+  pageInfo: null,
+  log: null
 }
 
 
@@ -51,6 +53,16 @@ const logSlice = createSlice({
           .addCase(fetchLogs.rejected, (state, action) => {
             state.status = false
           })
+          .addCase(fetchLog.pending, (state, action) => {
+            state.status = true
+          })
+          .addCase(fetchLog.fulfilled, (state, action) => {
+            state.status = false
+            state.log = action.payload
+          })
+          .addCase(fetchLog.rejected, (state, action) => {
+            state.status = false
+          })
       }
 
 });
@@ -69,6 +81,19 @@ export const fetchLogs = createAsyncThunk(
 )
 
 
+export const fetchLog = createAsyncThunk(
+  'logs/fetchLog',
+  async (id: string): Promise<Log> => {
+    const response = await ApiClient({
+      url: Paths.logs.show(id),
+      method: 'GET',
+    })
+    console.log(response.data)
+    return response.data.record
+  }
+)
+
+
 export const { saveLogs } = logSlice.actions
 
 export const selectLogsList = (state: RootState) => {
@@ -76,6 +101,14 @@ export const selectLogsList = (state: RootState) => {
     logList: state.logs.logList,
     status: state.logs.status,
     pageInfo: state.logs.pageInfo,
+ }
+}
+
+
+export const selectLogsDetails = (state: RootState) => {
+  return {
+    log: state.logs.log,
+    status: state.logs.status,
  }
 }
 
