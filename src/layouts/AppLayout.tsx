@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { Routes, Route, Link } from "react-router-dom";
-import LogTable from '../components/Table';
 import { Container } from '@mui/system';
 import AppHeader from './AppHeader';
+import LogListPage from '../pages/LogListPage';
 
 
 export default function AppLayout() {
@@ -17,7 +17,7 @@ export default function AppLayout() {
             <Container maxWidth='lg'>
 
                 <Routes>
-                    <Route path='*' element={<LogTable />} />
+                    <Route path='*' element={<LogListPage />} />
                 </Routes> 
 
             </Container>

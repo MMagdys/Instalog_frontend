@@ -7,11 +7,20 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 type Props = {
   filterName: string;
   onFilterName: (value: string) => void;
+  handleFilterClick: () => void;
+  
 };
 
 
+export default function TableSearchToolBar({ filterName, onFilterName, handleFilterClick }: Props) {
 
-export default function TableSearchToolBar({ filterName, onFilterName }: Props) {
+  const OnSearch = (e: any) =>{
+    if( e.key == 'Enter' ){
+      handleFilterClick()
+    }
+  };
+
+  
   return (
     <Stack
       direction="row"
@@ -25,11 +34,13 @@ export default function TableSearchToolBar({ filterName, onFilterName }: Props) 
             onChange={(event) => onFilterName(event.target.value)}
             placeholder="Search name, email or action..."
             fullWidth
+            onKeyDown={OnSearch}
             sx={{ height: '45px', borderRadius: '8px 0 0 8px', borderColor: '#E0E0DF' }}
           />
 
         <ButtonGroup variant="outlined" size='large' aria-label="outlined button group" sx={{ height: '45px', borderRadius: '0 8px 8px 0'  }}>
-            <Button variant='outlined' startIcon={<FilterListIcon sx={{ color: '#575757' }} />}  sx={{ borderRadius: '0', color: 'text.disabled', borderColor: '#E0E0DF'  }}>
+            <Button variant='outlined' startIcon={<FilterListIcon sx={{ color: '#575757' }} />}  
+              sx={{ borderRadius: '0', color: 'text.disabled', borderColor: '#E0E0DF'  }}>
                 <Typography sx={{ textTransform: 'uppercase', color: '#575757' }}>
                     Filter
                 </Typography>

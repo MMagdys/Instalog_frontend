@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { Button, Card } from '@mui/material';
+import { Button, Card, OutlinedInput } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
@@ -18,6 +18,7 @@ import Typography, { TypographyProps } from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import DetailsTable from './Table/DetailsTable';
 import { tableCellClasses } from "@mui/material/TableCell";
+import Log from '../models/Log';
 
 
 
@@ -45,7 +46,7 @@ function createData(
   };
 }
 
-function Row(props: { row: ReturnType<typeof createData> }) {
+function Row(props: { row: Log }) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
 
@@ -60,12 +61,12 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                     <Typography sx={{ fontWeight: '700' }}>M</Typography>
                 </Avatar>
                 <Typography sx={{ fontWeight: '400', fontSize: '14', fontFamily: 'inter' }}>
-                    {row.actor}
+                    {row.actor.name}
                 </Typography>
             </Box>
         </TableCell>
-        <TableCell>{row.action}</TableCell>
-        <TableCell>{row.date}</TableCell>
+        <TableCell>{row.action.name}</TableCell>
+        <TableCell>{row.occurred_at}</TableCell>
 
         <TableCell align="right">
           <IconButton
@@ -93,7 +94,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                     }}
                 >
                     <TableBody>
-                        <TableRow key={row.actor}>
+                        <TableRow key={`${row.id}-details-1`}>
                             <TableCell component="th" scope="row">
                                 <DetailsTable title="Actor" list={[{key: "Name", value: "Muhammad Magdy"}]} />
                             </TableCell>
@@ -106,7 +107,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                             {/* <TableCell /> */}
                         </TableRow>
 
-                        <TableRow key={row.actor}>
+                        <TableRow key={`${row.id}-details-2`}>
                             <TableCell component="th" scope="row">
                                 <DetailsTable title="META DATA" list={[{key: "Name", value: "Muhammad Magdy"}]} />
                             </TableCell>
@@ -140,7 +141,9 @@ const TableHeaderLabel = styled(Typography)<TypographyProps>(({ theme }) => ({
 
 
 
-export default function LogTable() {
+export default function LogTable(props: any) {
+
+    const { list, pageInfo, handleLoadMore, handleSearch } = props;
 
     const [filterName, setFilterName] = React.useState('');
 
@@ -148,11 +151,15 @@ export default function LogTable() {
         setFilterName(filterName);
     };
 
+    const handleFilterClick = () => {
+      handleSearch(filterName)
+    }
+
 
     return (
         <Box>
         <Card>
-            <TableSearchToolBar filterName={filterName} onFilterName={handleFilterName} />
+            <TableSearchToolBar filterName={filterName} onFilterName={handleFilterName} handleFilterClick={handleFilterClick} />
 
             <TableContainer component={Paper} sx={{ position: 'relative' }}>
             <Table>
@@ -171,16 +178,23 @@ export default function LogTable() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                {rows.map((row) => (
-                    <Row key={row.actor} row={row} />
+                {list.map((row: any) => (
+                    <Row key={row.id} row={row} />
                 ))}
                 </TableBody>
             </Table>
-                <Button size="large" sx={{ backgroundColor: '#F5F5F5', width: '100%', height: '52px' }}>
+                {
+                  pageInfo && pageInfo.nextPage !== -1?
+                  <Button size="large" sx={{ backgroundColor: '#F5F5F5', width: '100%', height: '52px' }}
+                  onClick={handleLoadMore}
+                  >
                     <Typography sx={{ fontWeight: '600', color: '#616161' }}>
                         LOAD MORE
                     </Typography>
                 </Button>
+                : 
+                null
+                }
             </TableContainer>
         </Card>
         </Box>
